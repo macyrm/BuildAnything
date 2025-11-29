@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alzheimer Risk Screener</title>
+    <style>
+        /* Basic Styling for the page */
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="number"], select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { margin-top: 20px; padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #result { margin-top: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; min-height: 50px; }
+        /* Result styling based on prediction */
+        .risk-high { color: red; font-weight: bold; }
+        .risk-low { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1> Alzheimer Risk Assessment</h1>
+    <p>Please provide the following data points to receive a preliminary risk assessment. Remember: This is a project output and **NOT a medical diagnosis.**</p>
+    
+    <form id="screening-form">
+        <label for="age">Age (Years):</label>
+        <input type="number" id="age" name="age" min="18" required>
+
+        <label for="mmse_score">MMSE Score (0-30):</label>
+        <input type="number" id="mmse_score" name="mmse_score" min="0" max="30" required>
+
+        <label for="memory_complaints">Memory Complaints:</label>
+        <select id="memory_complaints" name="memory_complaints" required>
+            <option value="0">No (0)</option>
+            <option value="1">Yes (1)</option>
+        </select>
+
+        <label for="confusion">Confusion/Difficulty Concentrating:</label>
+        <select id="confusion" name="confusion" required>
+            <option value="0">No (0)</option>
+            <option value="1">Yes (1)</option>
+        </select>
+        
+        <label for="disorientation">Disorientation (Getting lost, unsure of time/place):</label>
+        <select id="disorientation" name="disorientation" required>
+            <option value="0">No (0)</option>
+            <option value="1">Yes (1)</option>
+        </select>
+
+        <label for="daily_tasks_difficulty">Difficulty Completing Daily Tasks:</label>
+        <select id="daily_tasks_difficulty" name="daily_tasks_difficulty" required>
+            <option value="0">No (0)</option>
+            <option value="1">Yes (1)</option>
+        </select>
+        
+        <button type="submit">Get Risk Assessment</button>
+    </form>
+
+    <hr>
+    
+    <h2>Assessment Result</h2>
+    <div id="result">
+        Submit the form to see your results.
+    </div>
+
+    <script>
+        document.getElementById('screening-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = "Processing request... please wait.";
+            
+            // Collect form data and convert to numbers for the API
+            const formData = {
+                age: parseInt(document.getElementById('age').value),
+                mmse_score: parseInt(document.getElementById('mmse_score').value),
+                memory_complaints: parseInt(document.getElementById('memory_complaints').value),
+                confusion: parseInt(document.getElementById('confusion').value),
+                disorientation: parseInt(document.getElementById('disorientation').value),
+                daily_tasks_difficulty: parseInt(document.getElementById('daily_tasks_difficulty').value)
+            };
+
+            const apiEndpoint = 'http://127.0.0.1:8080/screen'; 
+
+            try {
+                // Send data to the Flask API
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const data = await response.json(); 
+
+                // Check for successful response status (200-299)
+                if (response.ok) { 
+                    let outputHTML = `
+                        <p><strong>Status:</strong> ${data.status}</p>
+                        <p><strong>Synthesized Input Text:</strong> <em>${data.synthesized_text}</em></p>
+                        <p><strong>Risk Level:</strong> <span class="${data.prediction_code === 1 ? 'risk-high' : 'risk-low'}">${data.prediction}</span></p>
+                        <p><strong>Disclaimer:</strong> ${data.disclaimer}</p>
+                    `;
+                    resultDiv.innerHTML = outputHTML;
+                } else {
+                    // Handle API-side errors (e.g., missing field)
+                    resultDiv.innerHTML = `
+                        <p style="color: red;"><strong>Error:</strong> ${data.error || 'Unknown error'}</p>
+                        <p>Message: ${data.message || 'The server returned an error.'}</p>
+                    `;
+                }
+
+            } catch (error) {
+                // Handle network/connection errors
+                resultDiv.innerHTML = `<p style="color: red;"><strong>Network Error:</strong> Could not connect to the API server. Is your Flask application running on http://127.0.0.1:8080?</p>`;
+                console.error('Fetch error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
