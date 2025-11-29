@@ -1,1 +1,10 @@
-*.env.example
+.venv/
+__pycache__/
+*.pyc
+*.log
+
+processed_data/
+models/
+results/
+
+.env
