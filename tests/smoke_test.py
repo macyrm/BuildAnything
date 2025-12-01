@@ -1,20 +1,18 @@
 import requests
 import json
 
-# Configuration
 API_URL = "http://127.0.0.1:8080"
 SCREEN_ENDPOINT = f"{API_URL}/screen"
 HEALTH_ENDPOINT = f"{API_URL}/health"
 
 def test_health_check():
-    """Tests the /health endpoint for basic connectivity."""
     print("--- 1. Testing Health Check ---")
     try:
         response = requests.get(HEALTH_ENDPOINT)
         
         if response.status_code == 200:
             data = response.json()
-            if data.get("status") == "healthy":
+            if data.get("status") == "ok":
                 print(f"PASS: Health check succeeded. Status: {data.get('status')}")
                 return True
             else:
@@ -29,7 +27,6 @@ def test_health_check():
         return False
 
 def test_prediction(test_name, input_data, expected_code):
-    """Generic function to test the /screen endpoint."""
     print(f"\n--- 2. Testing Prediction: {test_name} ---")
     
     try:
@@ -61,9 +58,8 @@ def test_prediction(test_name, input_data, expected_code):
         return False
 
 def test_invalid_input():
-    """Tests the /screen endpoint for graceful handling of missing data (400 check)."""
     print("\n--- 3. Testing Invalid Input (Expected 400) ---")
-    input_data = {"age": 70, "mmse_score": 25} # Missing 4 required binary fields
+    input_data = {"age": 70, "mmse_score": 25} 
     
     try:
         response = requests.post(SCREEN_ENDPOINT, json=input_data, timeout=10)
@@ -82,56 +78,41 @@ def test_invalid_input():
 if __name__ == "__main__":
     
     LOW_RISK_DATA = {
-        "age": 65, 
+        "age": 25, 
         "mmse_score": 30, 
-        "memory_complaints": 0, 
-        "confusion": 0, 
-        "disorientation": 0, 
-        "daily_tasks_difficulty": 0
+        "obesity": 0,
+        "medical_history": 0,
+        "cognitive_function": 0,
+        "symptoms": 0
     }
     HIGH_RISK_DATA = {
         "age": 85, 
         "mmse_score": 15, 
-        "memory_complaints": 0, 
-        "confusion": 1, 
-        "disorientation": 0, 
-        "daily_tasks_difficulty": 0
+        "obesity": 1,
+        "medical_history": 7,
+        "cognitive_function": 2,
+        "symptoms": 5
     }
     TEST_A_AGE = {
-        "age": 55, "mmse_score": 30, "memory_complaints": 0, 
-        "confusion": 0, "disorientation": 0, "daily_tasks_difficulty": 0
+        "age": 55, "mmse_score": 30, "obesity": 0, 
+        "medical_history": 0, "cognitive_function": 0, "symptoms": 0
     }
     TEST_B_MMSE = {
-        "age": 65, "mmse_score": 28, "memory_complaints": 0, 
-        "confusion": 0, "disorientation": 0, "daily_tasks_difficulty": 0
+        "age": 65, "mmse_score": 28, "obesity": 0, 
+        "medical_history": 0, "cognitive_function": 0, "symptoms": 0
     }
     TEST_C_SYMPTOM = {
-        "age": 65, "mmse_score": 30, "memory_complaints": 1, # Only 1 symptom is '1'
-        "confusion": 0, "disorientation": 0, "daily_tasks_difficulty": 0
+        "age": 65, "mmse_score": 30, "obesity": 0, 
+        "medical_history": 0, "cognitive_function": 0, "symptoms": 1
     }
 
     print("\n\n--- RUNNING DEBUG TESTS TO ISOLATE FEATURE BIAS ---")
     
-    # Test A: Checking sensitivity to age (expecting 0)
-    # test_prediction("DEBUG A: Healthy, Age 55", TEST_A_AGE, expected_code=0) 
-    
-    # Test B: Checking sensitivity to MMSE (expecting 0)
-    # test_prediction("DEBUG B: Healthy, MMSE 28", TEST_B_MMSE, expected_code=0) 
-    
-    # Test C: Checking if one symptom instantly triggers a high risk (expecting 0, but testing weight)
-    # test_prediction("DEBUG C: Healthy, ONE Symptom (Memory Complaints)", TEST_C_SYMPTOM, expected_code=0) 
-    
-    # print("\n--- RERUN THE ORIGINAL LOW-RISK FAIL CASE FOR REFERENCE ---")
-    # Original Fail Case for comparison
-    # test_prediction("Original Low Risk Fail Case (Age 65, MMSE 30)", 
-                     #{"age": 65, "mmse_score": 30, "memory_complaints": 0, 
-                     #"confusion": 0, "disorientation": 0, "daily_tasks_difficulty": 0}, expected_code=0)
-
     results = {}
     
     print("\n\n--- RUNNING INITIAL SMOKE TESTS ---")
     results['health'] = test_health_check()
-    # Testing the known failing case for confirmation
+   
     results['low_risk_fail_case'] = test_prediction("Original Low Risk Fail Case", LOW_RISK_DATA, expected_code=0)
     results['high_risk'] = test_prediction("High Risk Profile", HIGH_RISK_DATA, expected_code=1)
     results['invalid_input'] = test_invalid_input()
