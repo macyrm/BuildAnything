@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
 import joblib
 import pandas as pd
+import logging
 
 MODEL_PATH = os.environ.get("MODEL_PATH", "./models/xgb_alzheimer_classifier.joblib")
 API_PORT = int(os.environ.get("API_PORT", 8080))
@@ -22,14 +23,14 @@ def load_model():
     try:
         import os
         if not os.path.exists(MODEL_PATH):
-            print(f"CRITICAL ERROR: Model file not found at expected path: {MODEL_PATH}")
+            logging.critical(f"Model file not found at expected path: {MODEL_PATH}")
             raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
             
-        print(f"Attempting to load model from {MODEL_PATH}...")
+        logging.info(f"Attempting to load model from {MODEL_PATH}...")
         model = joblib.load(MODEL_PATH)
-        print("Model loaded successfully.")
+        logging.info("Model loaded successfully.")
     except Exception as e:
-        print(f"Error loading model: {e}") 
+        logging.error(f"Error loading model: {e}") 
         model = None
 
 app = Flask(__name__)
