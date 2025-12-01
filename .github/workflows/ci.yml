@@ -51,11 +51,10 @@ jobs:
             - name: Run Smoke Tests
               run: |
                   docker run -d --name test_app -p 8080:8080 --env MODEL_PATH=${{ env.MODEL_PATH }} alz-screener-chatbot:latest
-                  
                   echo "Waiting for the application to start (15 seconds)..."
                   sleep 15
                   
-                  python tests/smoke_tests.py
+                  python tests/smoke_test.py
 
                   if [ $? -ne 0 ]; then
                       echo "Smoke tests failed!"
