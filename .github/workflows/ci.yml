@@ -62,3 +62,11 @@ jobs:
                       exit 1
                   fi
                   echo "Smoke tests passed!"
+
+            - name: Display Application Logs (Observability Check)
+              if: success()
+              run: |
+                  echo "--- Displaying Application Logs (Check for 'Model loaded successfully.') ---"
+                  docker logs test_app
+                  
+                  docker rm -f test_app || true
