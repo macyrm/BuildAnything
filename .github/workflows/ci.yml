@@ -30,6 +30,10 @@ jobs:
                 mkdir -p models
                 python src/data_prep.py
                 python src/train_model.py
+
+            - name: Build Docker Image
+              run: |
+                  docker build -t alz-screener-chatbot:latest .
             
             - name: Run Smoke Tests
               run: |
