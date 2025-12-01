@@ -36,6 +36,8 @@ def load_model():
 app = Flask(__name__)
 CORS(app) 
 
+app.logger.setLevel(logging.INFO)
+
 load_model()
 
 @app.route("/health", methods=["GET"])
