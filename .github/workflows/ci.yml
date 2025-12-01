@@ -9,6 +9,9 @@ on:
 jobs:
     build-and-test:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
         env:
             MODEL_PATH: ./models/xgb_alzheimer_classifier.joblib
             IMAGE_NAME: alz-screener-chatbot
