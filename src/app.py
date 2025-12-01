@@ -23,14 +23,14 @@ def load_model():
     try:
         import os
         if not os.path.exists(MODEL_PATH):
-            logging.critical(f"Model file not found at expected path: {MODEL_PATH}")
+            app.logger.critical(f"Model file not found at expected path: {MODEL_PATH}")
             raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
             
-        logging.info(f"Attempting to load model from {MODEL_PATH}...")
+        app.logger.info(f"Attempting to load model from {MODEL_PATH}...")
         model = joblib.load(MODEL_PATH)
-        logging.info("Model loaded successfully.")
+        app.logger.info("Model loaded successfully.")
     except Exception as e:
-        logging.error(f"Error loading model: {e}") 
+        app.logger.error(f"Error loading model: {e}") 
         model = None
 
 app = Flask(__name__)
