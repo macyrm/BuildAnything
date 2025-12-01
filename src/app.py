@@ -87,7 +87,7 @@ def screen_user_response():
         
         text_template = (
             "Patient is a {age}-year-old with an MMSE score of {mmse_score}. "
-            "Reported BMI isi considered obese (BMI >30): {obesity}."
+            "Reported BMI is considered obese (BMI >30): {obesity}."
             "Total number of medical history risks (Family History of Alzheimers, Cardiovascular Disease, Diabetes, Depression, Head Injury, Hypertension) reported: {medical_history}."
             "Total number of cognitive function impairments (Behavior Problems, Memory Complaints) reported: {cognitive_function}. "
             "Total number of symptoms (Confusion, Disorientation, Personality Changes, Difficulty Completing Tasks, Forgetfulness) reported: {symptoms}."
