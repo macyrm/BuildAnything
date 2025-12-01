@@ -11,6 +11,8 @@ jobs:
         runs-on: ubuntu-latest
         env:
             MODEL_PATH: ./models/xgb_alzheimer_classifier.joblib
+            IMAGE_NAME: alz-screener-chatbot
+            REGISTRY: ghcr.io
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -43,7 +45,7 @@ jobs:
                   
                   mv requirements.tmp requirements.txt
                   echo "--- Contents of requirements.txt after modification ---"
-                  cat requirements.txt # Verify the change
+                  cat requirements.txt 
                   
             - name: Build Docker Image
               run: docker build -t alz-screener-chatbot:latest .
@@ -70,3 +72,18 @@ jobs:
                   docker logs test_app
                   
                   docker rm -f test_app || true
+            
+            - name: Log in to GitHub Container Registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+                  
+            - name: Tag and Push Image to GHCR
+              run: |
+                  IMAGE_PATH=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
+                  
+                  docker tag ${{ env.IMAGE_NAME }}:latest $IMAGE_PATH
+                  
+                  docker push $IMAGE_PATH
