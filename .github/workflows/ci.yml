@@ -33,16 +33,20 @@ jobs:
             
             - name: Force CPU-Only Torch for Docker Build
               run: |
-                echo "Modifying requirements.txt to install CPU-only torch."
-                grep -v '^torch' requirements.txt > requirements.tmp
-                echo 'https://download.pytorch.org/whl/cpu/torch-2.0.1-cp310-cp310-manylinux2014_x86_64.whl' >> requirements.tmp
-                mv requirements.tmp requirements.txt
-                echo "--- Contents of requirements.txt after modification ---"
-                cat requirements.txt
-
+                echo "Modifying requirements.txt to add PyTorch CPU Index."
+                  ORIGINAL_REQS=$(grep -v '^torch' requirements.txt)
+                  {
+                      echo "--extra-index-url https://download.pytorch.org/whl/cpu"
+                      echo "torch>=2.0.0" 
+                      echo "$ORIGINAL_REQS"
+                  } > requirements.tmp
+                  
+                  mv requirements.tmp requirements.txt
+                  echo "--- Contents of requirements.txt after modification ---"
+                  cat requirements.txt # Verify the change
+                  
             - name: Build Docker Image
-              run: |
-                  docker build -t alz-screener-chatbot:latest .
+              run: docker build -t alz-screener-chatbot:latest .
             
             - name: Run Smoke Tests
               run: |
