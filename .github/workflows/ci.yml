@@ -33,20 +33,16 @@ jobs:
             
             - name: Run Smoke Tests
               run: |
-                  docker run -d --name test_app -p 8080:8080 MODEL_PATH=${{ env.MODEL_PATH }}
-                  echo "Waiting for the application to start..."
+                  docker run -d --name test_app -p 8080:8080 --env MODEL_PATH=${{ env.MODEL_PATH }} alz-screener-chatbot:latest
+                  
+                  echo "Waiting for the application to start (15 seconds)..."
                   sleep 15
 
-                  python tests/smoke_tests.py
+                  python tests/smoke_tests.py 
 
                   if [ $? -ne 0 ]; then
-                      echo "Smoke tests failed!"
+                      echo "Smoke tests failed! See docker logs below."
                       docker logs test_app
                       exit 1
                   fi
-                      echo "Smoke tests passed!"
-            
-            - name: Stop and Remove Docker Container
-              if: always()
-              run: |
-                  docker rm -f test_app
+                  echo "Smoke tests passed!"
