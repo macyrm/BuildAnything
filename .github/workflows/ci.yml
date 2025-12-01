@@ -35,7 +35,7 @@ jobs:
               run: |
                 echo "Modifying requirements.txt to install CPU-only torch."
                 grep -v '^torch' requirements.txt > requirements.tmp
-                echo 'torch>=2.0.0+cpu' >> requirements.tmp
+                echo 'torch==2.0.1+cpu' >> requirements.tmp
                 mv requirements.tmp requirements.txt
                 cat requirements.txt
 
