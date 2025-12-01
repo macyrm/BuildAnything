@@ -10,7 +10,7 @@ jobs:
     build-and-test:
         runs-on: ubuntu-latest
         env:
-            MODEL_PATH: ./models/xgb_alzheimer_classifiier.joblib
+            MODEL_PATH: ./models/xgb_alzheimer_classifier.joblib
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -30,6 +30,14 @@ jobs:
                 mkdir -p models
                 python src/data_prep.py
                 python src/train_model.py
+            
+            - name: Force CPU-Only Torch for Docker Build
+              run: |
+                echo "Modifying requirements.txt to install CPU-only torch."
+                grep -v '^torch' requirements.txt > requirements.tmp
+                echo 'torch>=2.0.0+cpu' >> requirements.tmp
+                mv requirements.tmp requirements.txt
+                cat requirements.txt
 
             - name: Build Docker Image
               run: |
