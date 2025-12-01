@@ -82,7 +82,7 @@ jobs:
                   
             - name: Tag and Push Image to GHCR
               run: |
-                  IMAGE_PATH=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
+                  IMAGE_PATH=ghcr.io/macyrm/buildanything/alz-screener-chatbot:latest
                   
                   docker tag ${{ env.IMAGE_NAME }}:latest $IMAGE_PATH
                   
