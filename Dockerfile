@@ -16,6 +16,7 @@ COPY src/ src/
 COPY .env.example .
 COPY assets/ assets/
 COPY models/ models/
+RUN chmod -R 777 models/
 
 EXPOSE 8080
 
